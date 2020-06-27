@@ -4,12 +4,69 @@
 
 using namespace std;
 
+// This functions finds the determinant of Matrix
+double determinantOfMatrix(double mat[3][3])
+{
+	double ans;
+	ans = mat[0][0] * (mat[1][1] * mat[2][2] - mat[2][1] * mat[1][2])
+	      - mat[0][1] * (mat[1][0] * mat[2][2] - mat[1][2] * mat[2][0])
+	      + mat[0][2] * (mat[1][0] * mat[2][1] - mat[1][1] * mat[2][0]);
+	return ans;
+}
+
+// This function finds the solution of system of
+// linear equations using cramer's rule
+void findSolution(double coeff[3][3])
+{
+	// Matrix d using coeff as given in cramer's rule
+	double d[3][3] =
+	{
+		{ coeff[0][0], coeff[0][1], coeff[0][2] },
+		{ coeff[1][0], coeff[1][1], coeff[1][2] },
+		{ 1, 1, 1 },
+	};
+	// Matrix d1 using coeff as given in cramer's rule
+	double d1[3][3] =
+	{
+		{ 0, coeff[0][1], coeff[0][2] },
+		{ 0, coeff[1][1], coeff[1][2] },
+		{ 1, 1, 1 },
+	};
+	// Matrix d2 using coeff as given in cramer's rule
+	double d2[3][3] =
+	{
+		{ coeff[0][0], 0, coeff[0][2] },
+		{ coeff[1][0], 0, coeff[1][2] },
+		{ 1, 1, 1 },
+	};
+	// Matrix d3 using coeff as given in cramer's rule
+	double d3[3][3] =
+	{
+		{ coeff[0][0], coeff[0][1], 0 },
+		{ coeff[1][0], coeff[1][1], 0 },
+		{ 1, 1, 1 },
+	};
+
+	// Calculating Determinant of Matrices d, d1, d2, d3
+	double D = determinantOfMatrix(d);
+	double D1 = determinantOfMatrix(d1);
+	double D2 = determinantOfMatrix(d2);
+	double D3 = determinantOfMatrix(d3);
+
+	// Coeff have a unique solution. Apply Cramer's Rule
+	double x = D1 / D;
+	double y = D2 / D;
+	double z = D3 / D; // calculating z using cramer's rule
+	cout<<x<<"  "<<y<<"  "<<z;
+}
+
+
 struct WeatherProcess
 {
 
 	int state;
 
-	double **transitions=new double*[3];
+	double transitions[3][3];
 
 	WeatherProcess()
 	{
@@ -17,7 +74,6 @@ struct WeatherProcess
 		while (i<3)
 		{
 			int j=0;
-			transitions[i]=new double[3];
 			while (j<3)
 			{
 				transitions[i][j]=0;
@@ -25,7 +81,7 @@ struct WeatherProcess
 			}
 			i++;
 		}
-		
+
 		state=rand()%3;
 	}
 
@@ -95,11 +151,11 @@ int main()
 		weather.changeState();
 		double t_tmp=weather.getStayTime();
 		static_probs[weather.state]+=t_tmp;
-  		allTime+=t_tmp;
+		allTime+=t_tmp;
 		ef--;
 	}
 	int stTime=time(0);
-	
+
 	while (true)
 	{
 		system("cls");
@@ -121,6 +177,9 @@ int main()
 		int hours=(time(0)-stTime)%24;
 		cout<<"Time is "<<days<<" days and "<<hours<<" hours since start";
 		cout<<endl<<endl;
+		cout<<"Theoretical probabilities are:"<<endl;
+		findSolution(weather.transitions);
+		cout<<endl;
 		cout<<"Stabilized probabilities are:"<<endl;
 		cout<<static_probs[0]/allTime<<"  "<<static_probs[1]/allTime<<"  "<<static_probs[2]/allTime<<"  ";
 		if (acTime<time(0))
